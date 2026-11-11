@@ -22,6 +22,14 @@ malý strom projektov bez vyhľadávania — s týmto bookmarkletom dostaneš:
   Množín môže byť ľubovoľne veľa; ukladajú sa do `localStorage` prehliadača na origine
   `http://pwa`, takže prežijú zatvorenie prehliadača. Ak niektorá úloha už v strome nie je,
   preskočí sa a zobrazí sa počet nastavených (napr. „Nastavené 4/5").
+- **Prehľad množín** — tlačidlo *Prehľad* otvorí okno: vľavo zoznam uložených množín,
+  vpravo obsah vybranej — názov úlohy a za ním sivou cesta k nej, so stavmi
+  ☑ (zaškrtnutá v strome), ☐ (v strome, nezaškrtnutá) a ✗ (už v strome nie je).
+  Tlačidlo *Použiť* priamo v okne množinu rovno zaškrtne a stavy hneď prekreslí.
+  Okno sa otvorí aj automaticky po *Uložiť*, takže vidíš, čo sa uložilo.
+  Zatvoríš ho krížikom, tlačidlom *Zavrieť* alebo klikom mimo okna.
+- **Počítadlo** — pri checkboxe „Nevykazovat" sa priebežne ukazuje počet zaškrtnutých
+  úloh v celom strome (aj tých práve skrytých filtrom) a pri hľadaní počet nájdených.
 
 ## Inštalácia
 
