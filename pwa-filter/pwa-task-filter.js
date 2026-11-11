@@ -10,14 +10,23 @@
 // (PWA doťahuje úlohy lazy až pri rozbalení — bez toho by filter nenačítané úlohy nevidel).
 // Píš — strom sa filtruje (bez ohľadu na diakritiku a veľkosť písmen); keď match-ne názov projektu,
 // zobrazia sa všetky jeho úlohy. Esc vymaže filter.
-// Projekty začínajúce na "xo" alebo "SWD" sú ignorované (skryté, nerozbaľujú sa) — pozri IGNORED.
+// Ignorované prefixy projektov (skryté, nerozbaľujú sa) si používateľ definuje v poli "ignorovať prefixy"
+// (čiarkou oddelené, default xo,swd; uložené v localStorage pod kľúčom tsFilterIgnored).
 // Uzly obsahujúce "Nevykazovat" sú defaultne skryté; checkbox vedľa vyhľadávania ich zahrnie.
 // Množiny: aktuálne zaškrtnuté úlohy sa dajú uložiť pod názvom (localStorage PWA), neskôr vyvolať
 // (zaškrtne týždne existujúce úlohy klikom, takže ich widget zaregistruje) alebo zmazať.
 
 javascript: (function () {
     var NORM = function (s) { return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); };
-    var IGNORED = /^(xo|swd)/;   // top-level projekty, ktoré sa majú preskakovať (porovnáva sa normalizovaný názov)
+    var igList = [];
+    var setIgnored = function (s) {
+        igList = [];
+        s.split(',').forEach(function (x) { x = NORM(x.trim()); if (x) igList.push(x); });
+    };
+    var isIgnored = function (label) {
+        for (var i = 0; i < igList.length; i++) if (label.indexOf(igList[i]) === 0) return true;
+        return false;
+    };
 
     // dialóg beží v iframe SharePoint modálu — nájdi dokument s pickerom
     var findDoc = function (w) {
@@ -159,6 +168,34 @@ javascript: (function () {
         psInfo.textContent = 'Zmazané.';
     });
 
+    // --- konfigurovateľné ignorované prefixy projektov ---
+    var IGKEY = 'tsFilterIgnored', DEFAULT_IGNORED = 'xo,swd';
+    var igWrap = doc.createElement('div');
+    igWrap.style.cssText = 'margin:0 0 4px;font:11px Segoe UI,sans-serif;color:#444';
+    igWrap.appendChild(doc.createTextNode('ignorovať prefixy: '));
+    var igBox = doc.createElement('input');
+    igBox.type = 'text';
+    igBox.value = store.getItem(IGKEY) || DEFAULT_IGNORED;
+    igBox.style.cssText = 'font:11px Segoe UI,sans-serif;width:160px;padding:1px 4px';
+    igBox.title = 'Čiarkou oddelené prefixy projektov, ktoré sa skryjú a nenačítavajú';
+    igWrap.appendChild(igBox);
+    var applyIgnored = function () {
+        setIgnored(igBox.value);
+        store.setItem(IGKEY, igBox.value);
+        apply();
+        startPump();   // dodatočne rozbalí predtým ignorované (nenačítané) projekty
+    };
+    var igBtn = doc.createElement('button');
+    igBtn.type = 'button';
+    igBtn.textContent = 'Použiť';
+    igBtn.style.cssText = 'font:11px Segoe UI,sans-serif;margin-left:4px;padding:1px 6px;cursor:pointer';
+    igWrap.appendChild(igBtn);
+    picker.insertBefore(igWrap, psWrap.nextSibling);
+    setIgnored(igBox.value);
+    igBtn.addEventListener('click', applyIgnored);
+    igBox.addEventListener('keydown', function (e) { if (e.key === 'Enter') { applyIgnored(); e.preventDefault(); } });
+    igBox.addEventListener('change', applyIgnored);
+
     // uzol = <div role=treeitem>: prvý div = riadok s textom, .outer-children-container = deti
     var toExpand = [], hits = 0;
 
@@ -187,7 +224,7 @@ javascript: (function () {
             else if (!row) row = c;
         }
         var label = row ? NORM(row.textContent || '') : '';
-        if (item.parentElement === tree && IGNORED.test(label)) { item.style.display = 'none'; return 0; }
+        if (item.parentElement === tree && isIgnored(label)) { item.style.display = 'none'; return 0; }
         if (!nvBox.checked && label.indexOf('nevykazovat') > -1) { item.style.display = 'none'; return 0; }
         var selfMatch = !!q && label.indexOf(q) > -1;
         var cb = row && row.querySelector('input[type=checkbox]');
@@ -261,29 +298,37 @@ javascript: (function () {
     };
 
     // každých 150 ms rozklikne všetky zbalené uzly naraz (AJAXy si prehliadač zoradí sám); koniec = 5 tickov bez práce
-    var idle = 0;
-    var timer = doc.defaultView.setInterval(function () {
-        var nodes = tree.querySelectorAll('div[aria-expanded="false"]');
-        var n = 0;
-        for (var i = 0; i < nodes.length; i++) {
-            var it = nodes[i];
-            if (it.dataset.xall) continue;
-            if (it.parentElement === tree) {
-                var r = rowOf(it);
-                if (r && IGNORED.test(NORM(r.textContent || ''))) { it.dataset.xall = '1'; continue; }
+    var idle = 0, timer = null;
+    var startPump = function () {
+        if (timer) return;
+        idle = 0;
+        status.style.display = '';
+        timer = doc.defaultView.setInterval(function () {
+            var nodes = tree.querySelectorAll('div[aria-expanded="false"]');
+            var n = 0;
+            for (var i = 0; i < nodes.length; i++) {
+                var it = nodes[i];
+                if (it.dataset.xall) continue;
+                if (it.parentElement === tree) {
+                    var r = rowOf(it);
+                    // ignorované bez príznaku — po zmene zoznamu ich ďalší beh pumpu rozbalí
+                    if (r && isIgnored(NORM(r.textContent || ''))) continue;
+                }
+                it.dataset.xall = '1';
+                var ic = rowIcon(it);
+                if (ic) { ic.click(); n++; }
             }
-            it.dataset.xall = '1';
-            var ic = rowIcon(it);
-            if (ic) { ic.click(); n++; }
-        }
-        if (n === 0) {
-            if (++idle >= 5) {
-                doc.defaultView.clearInterval(timer);
-                status.style.display = 'none';
-                apply();
-            }
-        } else { idle = 0; }
-    }, 150);
+            if (n === 0) {
+                if (++idle >= 5) {
+                    doc.defaultView.clearInterval(timer);
+                    timer = null;
+                    status.style.display = 'none';
+                    apply();
+                }
+            } else { idle = 0; }
+        }, 150);
+    };
+    startPump();
 
     // --- zväčšenie modálneho okna (náš vložený UI vytláčal OK/Cancel mimo obraz) ---
     var DW = 160, DH = 200;
@@ -309,11 +354,11 @@ javascript: (function () {
             }
         }
     } catch (e) { }
-    // zväčši aj kontajnery stromu (inline px), −60/−10 px rezerva na naše prvky a tlačidlá
+    // zväčši aj kontajnery stromu (inline px), −90/−10 px rezerva na naše prvky a tlačidlá
     ['.outer-container', '.results-padder', '.general-results'].forEach(function (sel) {
         var el = picker.querySelector(sel);
         if (el) {
-            if (/px$/.test(el.style.height)) el.style.height = (parseInt(el.style.height) + DH - 60) + 'px';
+            if (/px$/.test(el.style.height)) el.style.height = (parseInt(el.style.height) + DH - 90) + 'px';
             if (/px$/.test(el.style.width)) el.style.width = (parseInt(el.style.width) + DW - 10) + 'px';
         }
     });

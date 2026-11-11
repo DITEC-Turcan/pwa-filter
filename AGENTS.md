@@ -20,7 +20,7 @@ Do koreňa môžu pribúdať generované HTML reporty (globálny príkaz `/tfs-t
 
 ## Mapa premenných (čitateľná → min)
 
-`NORM→N, IGNORED→IG, findDoc→F, picker→p, tree→t, box→b, nvWrap→nw, nvLab→nl, nvBox→nv, hitInfo→hi, hits→ht, highlight→hl, toExpand→tx, filterItem→fi, apply→ap, status→st, rowOf→ro, rowIcon→ri, idle→idl, timer→tm, PKEY→PK, store→ls, loadPresets→lp, savePresets→sv, pathOf→po, checkboxByPath→cbm, psWrap→pw, psSel→se, mkBtn→mkb, btnUse→bU, btnSave→bS, btnDel→bD, psInfo→inf, refreshPresets→rs, DW/DH (rozmery) rovnaké; vo fi: hasCb→hc, childUseful→cu, loadedKids→lk, pending→pe, useful→u`
+`NORM→N, IGKEY→IK, igList→il, setIgnored→si, isIgnored→ii, igWrap→iw, igBox→ib, applyIgnored→ia, igBtn→bI, findDoc→F, picker→p, tree→t, box→b, nvWrap→nw, nvLab→nl, nvBox→nv, hitInfo→hi, hits→ht, highlight→hl, toExpand→tx, filterItem→fi, apply→ap, status→st, rowOf→ro, rowIcon→ri, idle→idl, timer→tm, startPump→pp, PKEY→PK, store→ls, loadPresets→lp, savePresets→sv, pathOf→po, checkboxByPath→cbm, psWrap→pw, psSel→se, mkBtn→mkb, btnUse→bU, btnSave→bS, btnDel→bD, psInfo→inf, refreshPresets→rs, DW/DH (rozmery) rovnaké; vo fi: hasCb→hc, childUseful→cu, loadedKids→lk, pending→pe, useful→u`
 
 Pozn.: `filterItem`/`fi` vracia bitmask — 1 = zhoda s filtrom, 2 = má čo zaškrtnúť (enabled checkbox v podstrome); uzly bez bitu 2 sa skrývajú, ale uzly s nenačítanými deťmi (`aria-expanded=false` a prázdny kontajner) sa držia viditeľné, kým ich pump nerozbalí.
 
@@ -36,6 +36,6 @@ Pozn.: `filterItem`/`fi` vracia bitmask — 1 = zhoda s filtrom, 2 = má čo za�
 ## Doménové konvencie
 
 - Porovnávanie textov vždy cez `NORM` (lowercase + odstránená diakritika cez NFD).
-- Top-level projekty začínajúce na `xo`/`SWD` sa ignorujú: regex `IGNORED = /^(xo|swd)/` (jediné miesto konfigurácie).
+- Top-level projekty sa ignorujú podľa prefixov konfigurovateľných v UI (pole "ignorovať prefixy", čiarkou oddelené, default `xo,swd`); uložené v `localStorage` kľúč `tsFilterIgnored`, porovnáva sa začiatok normalizovaného názvu. Ignorované sa ani nerozbaľujú — po zmene zoznamu sa musí znova spustiť `startPump()`, aby sa predtým ignorované donačítali.
 - Uzly obsahujúce „nevykazovat" sú default skryté; checkbox „zahrnúť aj položky Nevykazovat" ich zobrazí.
 - Množiny checkboxov: `localStorage` na origine `http://pwa`, kľúč `tsFilterPresets`, formát `{ "názov": ["projekt|cesta|úloha", …] }` — cesty z normalizovaných názvov spojené `|`.

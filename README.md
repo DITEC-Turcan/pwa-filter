@@ -10,9 +10,11 @@ malý strom projektov bez vyhľadávania — s týmto bookmarkletom dostaneš:
 - **Auto-načítanie celého stromu** — PWA doťahuje úlohy zo servera až pri rozbalení uzla,
   takže by ich vyhľadávanie inak nevidelo. Bookmarklet po spustení celý strom sám rozbalí
   (trvá to ~1–2 s, stav ukazuje hláška „Načítavam celý strom úloh…").
-- **Ignorovanie balastu** — projekty začínajúce na `xo`/`SWD` sa skryjú a nenačítavajú.
-  Uzly obsahujúce „Nevykazovat" sú tiež skryté; checkbox *zahrnúť aj položky „Nevykazovat"*
-  ich v prípade potreby zobrazí.
+- **Ignorovanie balastu** — projekty začínajúce na zadané prefixy sa skryjú a nenačítavajú.
+  Prefixy si nastavíš priamo v dialógu (pole *ignorovať prefixy*, čiarkou oddelené,
+  default `xo,swd`); nastavenie sa pamätá. Uzly obsahujúce „Nevykazovat“ sú tiež skryté;
+  checkbox *zahrnúť aj položky „Nevykazovat“* ich v prípade potreby zobrazí.
+  Vetvy, v ktorých nie je nič na zaškrtnutie, sa nezobrazujú.
 - **Väčšie okno** — modálny dialóg aj strom sa zväčšia, takže vidno viac riadkov
   aj tlačidlá OK/Cancel.
 - **Množiny úloh** — aktuálne zaškrtnuté úlohy si uložíš pod názvom (tlačidlo *Uložiť*),
@@ -48,10 +50,11 @@ Opakovaný klik na záložku nič nepokazí — len znova zaostrí vyhľadávaci
 | [`pwa-filter/pwa-task-filter.js`](pwa-filter/pwa-task-filter.js) | Čitateľný zdrojový kód s komentármi — tu sa robia úpravy. |
 | [`pwa-filter/pwa-task-filter.min.txt`](pwa-filter/pwa-task-filter.min.txt) | Minifikovaná jednoriadková verzia pre záložku — musí byť funkčne zhodná so zdrojom. |
 
-## Konfigurácia (v kóde)
+## Konfigurácia
 
-- Ignorované prefixy projektov: regex `IGNORED = /^(xo|swd)/`.
-- Rozmerové konštanty zväčšenia okna: `DW`, `DH`.
+- Ignorované prefixy projektov: pole *ignorovať prefixy* priamo v dialógu (čiarkou oddelené,
+  default `xo,swd`; ukladá sa do `localStorage` pod kľúčom `tsFilterIgnored`).
+- Rozmerové konštanty zväčšenia okna (v kóde): `DW`, `DH`.
 - Kľúč množín v `localStorage`: `tsFilterPresets`.
 
 Po každej zmene kódu treba úpravu premietnuť do `.min.txt` a vymeniť URL v záložke.
