@@ -407,8 +407,10 @@ javascript: (function () {
     var updateCount = function () {
         countBar.textContent = 'Zaškrtnutých úloh: ' + tree.querySelectorAll('input[type=checkbox]:checked:not([disabled])').length;
     };
-    // setTimeout — stav checkboxu je finálny až po dobehnutí click eventu
-    tree.addEventListener('click', function () { doc.defaultView.setTimeout(updateCount, 0); });
+    // capture fáza — widget pri kliku na checkbox zastavuje bublanie; setTimeout — stav checkboxu je finálny až po dobehnutí eventu
+    var queueCount = function () { doc.defaultView.setTimeout(updateCount, 0); };
+    tree.addEventListener('click', queueCount, true);
+    tree.addEventListener('change', queueCount, true);
     updateCount();
 
     // --- auto-rozbalenie celého stromu, aby filter videl aj nenačítané úlohy ---
