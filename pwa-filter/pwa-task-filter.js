@@ -548,6 +548,16 @@ javascript: (function () {
             if (/px$/.test(el.style.width)) el.style.width = (parseInt(el.style.width) + treeDW) + 'px';
         }
     });
+    // ak obsah aj tak pretŕča z iframe (malé okno), skráť strom presne o zvyšný presah
+    var overflow = doc.documentElement.scrollHeight - doc.documentElement.clientHeight;
+    if (overflow > 0) {
+        ['.outer-container', '.results-padder', '.general-results'].forEach(function (sel) {
+            var el = picker.querySelector(sel);
+            if (el && /px$/.test(el.style.height)) {
+                el.style.height = Math.max(120, parseInt(el.style.height) - overflow - 8) + 'px';
+            }
+        });
+    }
 
     box.focus();
 })();
