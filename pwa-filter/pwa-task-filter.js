@@ -549,18 +549,24 @@ javascript: (function () {
             if (/px$/.test(el.style.width)) el.style.width = (parseInt(el.style.width) + treeDW) + 'px';
         }
     });
-    // ak obsah pretŕča, skráť strom presne o presah — SP dialóg scrolluje v #s4-workspace,
-    // nie v documentElement, preto sa meria tam; volá sa aj po načítaní stromu
+    // dorovnaj výšku stromu podľa spodných tlačidiel dialógu: skráti aj natíahne,
+    // aby tlačidlá sadli tesne nad spodný okraj (scrollHeight volné miesto nezmeria)
     var fixOverflow = function () {
-        var sc = doc.getElementById('s4-workspace');
-        var overflow = sc
-            ? sc.scrollHeight - sc.clientHeight
-            : Math.max(doc.documentElement.scrollHeight, doc.body ? doc.body.scrollHeight : 0) - doc.documentElement.clientHeight;
-        if (overflow <= 0) return;
+        var sc = doc.getElementById('s4-workspace') || doc.documentElement;
+        sc.scrollTop = 0;
+        var limit = Math.min(sc.getBoundingClientRect().bottom, doc.documentElement.clientHeight);
+        var bottom = 0;
+        doc.querySelectorAll('input[type=button],input[type=submit],button').forEach(function (b2) {
+            var r = b2.getBoundingClientRect();
+            if (r.height > 0 && r.bottom > bottom) bottom = r.bottom;
+        });
+        if (!bottom) return;
+        var overflow = bottom + 10 - limit;
+        if (overflow > -6 && overflow <= 0) return;   // sedí dostatočne tesne
         ['.outer-container', '.results-padder', '.general-results'].forEach(function (sel) {
             var el = picker.querySelector(sel);
             if (el && /px$/.test(el.style.height)) {
-                el.style.height = Math.max(120, parseInt(el.style.height) - overflow - 8) + 'px';
+                el.style.height = Math.max(120, parseInt(el.style.height) - overflow) + 'px';
             }
         });
     };
