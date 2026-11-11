@@ -43,12 +43,17 @@ javascript: (function () {
     var old = doc.getElementById('tsFilterBox');
     if (old) { old.focus(); old.select(); return; }
 
+    // spoločný podfarbený panel pre všetky naše prvky
+    var uiPanel = doc.createElement('div');
+    uiPanel.style.cssText = 'background:#eef6fc;border:1px solid #d0e4f5;border-radius:6px;padding:6px 8px;margin:0 0 6px';
+    picker.insertBefore(uiPanel, picker.firstChild);
+
     var box = doc.createElement('input');
     box.id = 'tsFilterBox';
     box.type = 'text';
     box.placeholder = 'Hľadať projekt/úlohu… (Esc = zrušiť filter)';
-    box.style.cssText = 'display:block;width:95%;margin:0 0 4px;padding:4px 6px;border:1px solid #0072c6;font:12px Segoe UI,sans-serif;outline:none';
-    picker.insertBefore(box, picker.firstChild);
+    box.style.cssText = 'display:block;width:100%;box-sizing:border-box;margin:0 0 4px;padding:4px 6px;border:1px solid #0072c6;font:12px Segoe UI,sans-serif;outline:none';
+    uiPanel.appendChild(box);
 
     var nvWrap = doc.createElement('div');
     nvWrap.style.cssText = 'display:block;margin:0 0 4px;font:11px Segoe UI,sans-serif;color:#444';
@@ -63,7 +68,7 @@ javascript: (function () {
     var hitInfo = doc.createElement('span');
     hitInfo.style.cssText = 'margin-left:10px;color:#0072c6';
     nvWrap.appendChild(hitInfo);
-    picker.insertBefore(nvWrap, box.nextSibling);
+    uiPanel.appendChild(nvWrap);
 
     // --- uložené množiny zaškrtnutých úloh (localStorage origin-u PWA) ---
     var PKEY = 'tsFilterPresets';
@@ -245,7 +250,7 @@ javascript: (function () {
         });
     };
     refreshPresets();
-    picker.insertBefore(psWrap, nvWrap.nextSibling);
+    uiPanel.appendChild(psWrap);
 
     btnSave.addEventListener('click', function () {
         var name = doc.defaultView.prompt('Názov množiny:');
@@ -304,7 +309,7 @@ javascript: (function () {
     igBtn.textContent = 'Použiť';
     igBtn.style.cssText = 'font:11px Segoe UI,sans-serif;margin-left:4px;padding:1px 6px;cursor:pointer';
     igWrap.appendChild(igBtn);
-    picker.insertBefore(igWrap, psWrap.nextSibling);
+    uiPanel.appendChild(igWrap);
     setIgnored(igBox.value);
     igBtn.addEventListener('click', applyIgnored);
     igBox.addEventListener('keydown', function (e) { if (e.key === 'Enter') { applyIgnored(); e.preventDefault(); } });
@@ -410,7 +415,7 @@ javascript: (function () {
     var status = doc.createElement('span');
     status.style.cssText = 'display:block;margin:0 0 4px;font:11px Segoe UI,sans-serif;color:#666';
     status.textContent = 'Načítavam celý strom úloh…';
-    picker.insertBefore(status, box.nextSibling);
+    uiPanel.appendChild(status);
 
     var rowOf = function (item) {
         for (var c = item.firstElementChild; c; c = c.nextElementSibling) {
