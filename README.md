@@ -25,11 +25,12 @@ malý strom projektov bez vyhľadávania — s týmto bookmarkletom dostaneš:
 
 ## Inštalácia
 
-1. Otvor v prehliadači [`pwa-filter/pwa-task-filter.install.html`](pwa-filter/pwa-task-filter.install.html) (dvojklik na súbor).
+1. Otvor inštalačnú stránku **<https://ditec-turcan.github.io/pwa-filter/>**
+   (alebo lokálne [`pwa-filter/pwa-task-filter.install.html`](pwa-filter/pwa-task-filter.install.html) — je to tá istá stránka).
 2. Zobraz si panel obľúbených (`Ctrl+Shift+B`).
-3. **Potiahni modré tlačidlo „PWA filter“ myšou na panel obľúbených.**
+3. **Potiahni modré tlačidlo „PWA filter" myšou na panel obľúbených.**
 
-Celý skript je vložený priamo v záložke — nič sa nesťahuje zo siete.
+Celý skript je vložený priamo v záložke — pri používaní sa nič nesťahuje zo siete.
 **Aktualizácia na novšiu verziu:** starú záložku zmazať a potiahnuť nanovo.
 
 ## Použitie
@@ -49,6 +50,7 @@ Opakovaný klik na záložku nič nepokazí — len znova zaostrí vyhľadávaci
 | [`pwa-filter/pwa-task-filter.min.txt`](pwa-filter/pwa-task-filter.min.txt) | Minifikovaná jednoriadková verzia — musí byť funkčne zhodná so zdrojom. |
 | [`pwa-filter/make-install-html.ps1`](pwa-filter/make-install-html.ps1) | Vygeneruje inštalačnú stránku z min verzie. |
 | [`pwa-filter/pwa-task-filter.install.html`](pwa-filter/pwa-task-filter.install.html) | Generovaná inštalačná stránka — záložka sa inštaluje potiahnutím odkazu. |
+| [`index.html`](index.html) | Kópia inštalačnej stránky pre GitHub Pages (<https://ditec-turcan.github.io/pwa-filter/>). |
 
 ## Konfigurácia
 
