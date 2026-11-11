@@ -34,6 +34,7 @@ Pozn.: `filterItem`/`fi` vracia bitmask — 1 = zhoda s filtrom, 2 = má čo za�
 - Deti sa **lazy-loadujú AJAXom** až po kliknutí na expand ikonu; checkboxy projektov sú `disabled`, zaškrtávateľné sú len úlohy (listy).
 - Programové zaškrtnutie robiť cez `.click()`, nie `.checked = true` — inak to widget nezaregistruje.
 - SP modál má inline px rozmery na rodičoch iframe (zväčšovanie okna upravuje len hodnoty končiace na `px`).
+- Stránka dialógu (SelectTaskDlg.aspx) nescrolluje v `documentElement` — scroll kontajner je `#s4-workspace`; presah obsahu treba merať tam (`fixOverflow`).
 
 ## Doménové konvencie
 

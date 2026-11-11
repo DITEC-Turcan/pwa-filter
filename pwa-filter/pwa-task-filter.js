@@ -549,10 +549,13 @@ javascript: (function () {
             if (/px$/.test(el.style.width)) el.style.width = (parseInt(el.style.width) + treeDW) + 'px';
         }
     });
-    // ak obsah pretŕča z iframe, skráť strom presne o presah — volá sa aj po načítaní stromu,
-    // lebo layout dialógu sa môže ustáliť až neskôr
+    // ak obsah pretŕča, skráť strom presne o presah — SP dialóg scrolluje v #s4-workspace,
+    // nie v documentElement, preto sa meria tam; volá sa aj po načítaní stromu
     var fixOverflow = function () {
-        var overflow = doc.documentElement.scrollHeight - doc.documentElement.clientHeight;
+        var sc = doc.getElementById('s4-workspace');
+        var overflow = sc
+            ? sc.scrollHeight - sc.clientHeight
+            : Math.max(doc.documentElement.scrollHeight, doc.body ? doc.body.scrollHeight : 0) - doc.documentElement.clientHeight;
         if (overflow <= 0) return;
         ['.outer-container', '.results-padder', '.general-results'].forEach(function (sel) {
             var el = picker.querySelector(sel);
