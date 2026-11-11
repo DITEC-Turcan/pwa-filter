@@ -15,9 +15,10 @@ Do koreňa môžu pribúdať generované HTML reporty (globálny príkaz `/tfs-t
 
 1. **Každá zmena logiky sa robí v `pwa-task-filter.js` a MUSÍ sa ručne premietnuť do `pwa-task-filter.min.txt`** (minifikácia je manuálna, pozri mapu premenných nižšie). Obe verzie musia byť funkčne identické.
 2. Po zmene min verzie spusti `pwa-filter/make-install-html.ps1` a na konci odpovede pripomeň používateľovi, že má starú záložku zmazať a **znova pretiahnuť z pwa-task-filter.install.html** (a môže commitnúť/pushnúť).
-3. **Nedá sa testovať lokálne** — cieľ je intranetová stránka. Overenie robí používateľ v prehliadači; pri neistote o DOM si vyžiadaj outerHTML alebo screenshot.
-4. Bookmarklet musí ostať vanilla ES5-kompatibilný JS (žiadne moduly, žiadne async/await), celý v jednom IIFE s prefixom `javascript:`.
-5. **Zmeny musia byť spätne kompatibilné.** Hlavne formát množín v `localStorage` (kľúč `tsFilterPresets`) sa nesmie meniť tak, aby existujúce uložené dáta prestali fungovať — pri zmene formátu treba staré dáta čítať ďalej (migrácia pri načítaní, nie zahodenie). To isté platí pre názvy kľúčov a `dataset` príznaky, na ktorých závisí správanie pri opakovanom spustení bookmarkletu.
+3. **Pri každej zmene správania aktualizuj README.md** — návod (funkcie, inštalácia, použitie) musí vždy sedieť s realitou. README je zároveň dokumentácia pre kolegov na GitHube.
+4. **Nedá sa testovať lokálne** — cieľ je intranetová stránka. Overenie robí používateľ v prehliadači; pri neistote o DOM si vyžiadaj outerHTML alebo screenshot.
+5. Bookmarklet musí ostať vanilla ES5-kompatibilný JS (žiadne moduly, žiadne async/await), celý v jednom IIFE s prefixom `javascript:`.
+6. **Zmeny musia byť spätne kompatibilné.** Hlavne formát množín v `localStorage` (kľúč `tsFilterPresets`) sa nesmie meniť tak, aby existujúce uložené dáta prestali fungovať — pri zmene formátu treba staré dáta čítať ďalej (migrácia pri načítaní, nie zahodenie). To isté platí pre názvy kľúčov a `dataset` príznaky, na ktorých závisí správanie pri opakovanom spustení bookmarkletu.
 
 ## Mapa premenných (čitateľná → min)
 
