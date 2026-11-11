@@ -179,6 +179,7 @@ javascript: (function () {
         sp.appendChild(doc.createTextNode(orig.slice(idx + q.length)));
     };
 
+    // vracia bitmask: 1 = zhoda s filtrom, 2 = má čo zaškrtnúť (enabled checkbox v podstrome)
     var filterItem = function (item, q, anc) {
         var row = null, cont = null, c;
         for (c = item.firstElementChild; c; c = c.nextElementSibling) {
@@ -186,27 +187,32 @@ javascript: (function () {
             else if (!row) row = c;
         }
         var label = row ? NORM(row.textContent || '') : '';
-        if (item.parentElement === tree && IGNORED.test(label)) { item.style.display = 'none'; return false; }
-        if (!nvBox.checked && label.indexOf('nevykazovat') > -1) { item.style.display = 'none'; return false; }
+        if (item.parentElement === tree && IGNORED.test(label)) { item.style.display = 'none'; return 0; }
+        if (!nvBox.checked && label.indexOf('nevykazovat') > -1) { item.style.display = 'none'; return 0; }
         var selfMatch = !!q && label.indexOf(q) > -1;
-        var childMatch = false;
+        var cb = row && row.querySelector('input[type=checkbox]');
+        var hasCb = !!(cb && !cb.disabled);
+        var childMatch = false, childUseful = false, loadedKids = false;
         if (cont && cont.firstElementChild) {
             for (c = cont.firstElementChild.firstElementChild; c; c = c.nextElementSibling) {
-                if (filterItem(c, q, anc || selfMatch)) childMatch = true;
+                loadedKids = true;
+                var rr = filterItem(c, q, anc || selfMatch);
+                if (rr & 1) childMatch = true;
+                if (rr & 2) childUseful = true;
             }
         }
-        var vis = !q || anc || selfMatch || childMatch;
+        // kým deti nie sú načítané (lazy load ešte beží), uzol nechaj viditeľný
+        var pending = !loadedKids && item.getAttribute('aria-expanded') === 'false';
+        var useful = hasCb || childUseful || pending;
+        var vis = useful && (!q || anc || selfMatch || childMatch);
         item.style.display = vis ? '' : 'none';
-        highlight(row, selfMatch ? q : '');
-        if (q && vis) {
-            var cb = row && row.querySelector('input[type=checkbox]');
-            if (cb && !cb.disabled) hits++;
-        }
+        highlight(row, selfMatch && vis ? q : '');
+        if (q && vis && hasCb) hits++;
         // kandidát na auto-rozbalenie (lazy load detí) — raz na uzol, nehádame sa s ručným zbalením
         if ((selfMatch || childMatch) && item.getAttribute('aria-expanded') === 'false' && !item.dataset.axp) {
             toExpand.push(item);
         }
-        return selfMatch || childMatch;
+        return (selfMatch || childMatch ? 1 : 0) | (useful ? 2 : 0);
     };
 
     var apply = function () {

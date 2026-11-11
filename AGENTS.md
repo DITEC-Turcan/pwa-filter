@@ -16,10 +16,13 @@ Do koreňa môžu pribúdať generované HTML reporty (globálny príkaz `/tfs-t
 2. Na konci odpovede vždy pripomeň používateľovi, aby **vymenil URL v záložke** za nový obsah `.min.txt`.
 3. **Nedá sa testovať lokálne** — cieľ je intranetová stránka. Overenie robí používateľ v prehliadači; pri neistote o DOM si vyžiadaj outerHTML alebo screenshot.
 4. Bookmarklet musí ostať vanilla ES5-kompatibilný JS (žiadne moduly, žiadne async/await), celý v jednom IIFE s prefixom `javascript:`.
+5. **Zmeny musia byť spätne kompatibilné.** Hlavne formát množín v `localStorage` (kľúč `tsFilterPresets`) sa nesmie meniť tak, aby existujúce uložené dáta prestali fungovať — pri zmene formátu treba staré dáta čítať ďalej (migrácia pri načítaní, nie zahodenie). To isté platí pre názvy kľúčov a `dataset` príznaky, na ktorých závisí správanie pri opakovanom spustení bookmarkletu.
 
 ## Mapa premenných (čitateľná → min)
 
-`NORM→N, IGNORED→IG, findDoc→F, picker→p, tree→t, box→b, nvWrap→nw, nvLab→nl, nvBox→nv, hitInfo→hi, hits→ht, highlight→hl, toExpand→tx, filterItem→fi, apply→ap, status→st, rowOf→ro, rowIcon→ri, idle→idl, timer→tm, PKEY→PK, store→ls, loadPresets→lp, savePresets→sv, pathOf→po, checkboxByPath→cbm, psWrap→pw, psSel→se, mkBtn→mkb, btnUse→bU, btnSave→bS, btnDel→bD, psInfo→inf, refreshPresets→rs, DW/DH (rozmery) rovnaké`
+`NORM→N, IGNORED→IG, findDoc→F, picker→p, tree→t, box→b, nvWrap→nw, nvLab→nl, nvBox→nv, hitInfo→hi, hits→ht, highlight→hl, toExpand→tx, filterItem→fi, apply→ap, status→st, rowOf→ro, rowIcon→ri, idle→idl, timer→tm, PKEY→PK, store→ls, loadPresets→lp, savePresets→sv, pathOf→po, checkboxByPath→cbm, psWrap→pw, psSel→se, mkBtn→mkb, btnUse→bU, btnSave→bS, btnDel→bD, psInfo→inf, refreshPresets→rs, DW/DH (rozmery) rovnaké; vo fi: hasCb→hc, childUseful→cu, loadedKids→lk, pending→pe, useful→u`
+
+Pozn.: `filterItem`/`fi` vracia bitmask — 1 = zhoda s filtrom, 2 = má čo zaškrtnúť (enabled checkbox v podstrome); uzly bez bitu 2 sa skrývajú, ale uzly s nenačítanými deťmi (`aria-expanded=false` a prázdny kontajner) sa držia viditeľné, kým ich pump nerozbalí.
 
 ## DOM kontrakt PWA dialógu (overené z reálneho HTML)
 
