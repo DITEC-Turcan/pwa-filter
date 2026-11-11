@@ -36,7 +36,46 @@ javascript: (function () {
     };
 
     var doc = findDoc(window.top);
-    if (!doc) { alert('Najprv otvor dialóg "Add an Existing Task".'); return; }
+    if (!doc) {
+        // bez dialógu: ak je otvorený timesheet grid, ponúkni uloženie jeho úloh ako množiny
+        var findTsDoc = function (w) {
+            try { if (w.document && w.document.querySelector('table[id$="_leftpane_mainTable"]')) return w.document; } catch (e) { }
+            for (var i = 0; i < w.frames.length; i++) { var d = findTsDoc(w.frames[i]); if (d) return d; }
+            return null;
+        };
+        var tsDoc = findTsDoc(window.top);
+        if (!tsDoc) { alert('Najprv otvor dialóg "Add an Existing Task".'); return; }
+        var grid = tsDoc.querySelector('table[id$="_leftpane_mainTable"]');
+        var hdr = grid.querySelector('tr').children;
+        var pi = -1, ti = -1, ii2;
+        for (ii2 = 0; ii2 < hdr.length; ii2++) {
+            var tt = hdr[ii2].getAttribute('title');
+            if (tt === 'Project Name') pi = ii2;
+            else if (tt === 'Task Name') ti = ii2;
+        }
+        if (pi < 0 || ti < 0) { alert('V timesheete som nenašiel stĺpce Project Name / Task Name.'); return; }
+        var rows = grid.querySelectorAll('tr'), pairs = [], seen = {};
+        for (ii2 = 1; ii2 < rows.length; ii2++) {
+            var ch = rows[ii2].children;
+            if (ch.length <= pi || ch.length <= ti) continue;
+            var pj = (ch[pi].textContent || '').trim();
+            var tk = (ch[ti].textContent || '').trim();
+            if (!pj || !tk) continue;   // preskakuje aj súčtový riadok Total work (prázdna Task bunka)
+            var key = NORM(pj) + '|*|' + NORM(tk);
+            if (!seen[key]) { seen[key] = 1; pairs.push(key); }
+        }
+        if (!pairs.length) { alert('V timesheete som nenašiel žiadne úlohy.'); return; }
+        if (!window.confirm('Dialóg "Add an Existing Task" nie je otvorený.\nUložiť ' + pairs.length + ' úloh z aktuálneho timesheetu ako množinu?')) return;
+        var tsName = window.prompt('Názov množiny:');
+        if (!tsName) return;
+        var tsStore = tsDoc.defaultView.localStorage;
+        var tsPresets;
+        try { tsPresets = JSON.parse(tsStore.getItem('tsFilterPresets')) || {}; } catch (e2) { tsPresets = {}; }
+        tsPresets[tsName] = pairs;
+        tsStore.setItem('tsFilterPresets', JSON.stringify(tsPresets));
+        alert('Množina "' + tsName + '" uložená (' + pairs.length + ' úloh). Použiješ ju v dialógu Add an Existing Task.');
+        return;
+    }
 
     var picker = doc.getElementById('idDivTreePicker');
     var tree = picker.querySelector('.tree-results');
@@ -106,7 +145,15 @@ javascript: (function () {
         tree.querySelectorAll('input[type=checkbox]').forEach(function (cb) {
             if (!cb.disabled) {
                 var it = cb.closest('[role="treeitem"]');
-                if (it) map[pathOf(it)] = { cb: cb, disp: dispPathOf(it) };
+                if (it) {
+                    var path = pathOf(it);
+                    var entry = { cb: cb, disp: dispPathOf(it) };
+                    map[path] = entry;
+                    // voľný kľúč pre množiny z timesheetu: projekt|*|úloha bez [id] prefixu
+                    var segs = path.split('|');
+                    var loose = segs[0] + '|*|' + segs[segs.length - 1].replace(/^\[\d+\]\s*/, '');
+                    if (!map[loose]) map[loose] = entry;
+                }
             }
         });
         return map;
@@ -174,7 +221,7 @@ javascript: (function () {
             if (parts.length) {
                 var path = doc.createElement('span');
                 path.style.cssText = 'color:#888;font-size:10px';
-                path.textContent = '  (' + parts.join(' → ') + ')';
+                path.textContent = '  (' + parts.join(' → ').replace('*', '…') + ')';
                 line.appendChild(path);
             }
             modalItems.appendChild(line);

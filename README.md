@@ -28,6 +28,10 @@ malý strom projektov bez vyhľadávania — s týmto bookmarkletom dostaneš:
   Tlačidlo *Použiť* priamo v okne množinu rovno zaškrtne a stavy hneď prekreslí.
   Okno sa otvorí aj automaticky po *Uložiť*, takže vidíš, čo sa uložilo.
   Zatvoríš ho krížikom, tlačidlom *Zavrieť* alebo klikom mimo okna.
+- **Množina z timesheetu** — klik na záložku bez otvoreného dialógu: ak je na stránke
+  timesheet tabuľka, bookmarklet ponúkne uloženie jej úloh (Project Name + Task Name)
+  ako množiny. Tú potom v dialógu jedným „Použiť“ zaškrtneš — páruje sa podľa projektu
+  a názvu úlohy.
 - **Počítadlo** — pri checkboxe „Nevykazovat" sa priebežne ukazuje počet zaškrtnutých
   úloh v celom strome (aj tých práve skrytých filtrom) a pri hľadaní počet nájdených.
 
