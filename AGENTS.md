@@ -1,0 +1,38 @@
+# AGENTS.md
+
+Mini-workspace s bookmarkletom pre firemný Project Web App (PWA, SharePoint/Project Server na `http://pwa`).
+Komunikácia s používateľom aj UI texty sú po slovensky.
+
+## Súbory
+
+- [pwa-filter/pwa-task-filter.js](pwa-filter/pwa-task-filter.js) — čitateľný zdroj bookmarkletu s komentármi a návodom na inštaláciu. Pridáva vyhľadávanie, auto-rozbalenie stromu, zväčšenie okna a uložiteľné množiny checkboxov do PWA dialógu „Add an Existing Task" (Timesheet → Add Row → Select From Existing Assignments).
+- [pwa-filter/pwa-task-filter.min.txt](pwa-filter/pwa-task-filter.min.txt) — jednoriadková minifikovaná verzia; **toto je to, čo má používateľ v záložke prehliadača**.
+
+Do koreňa môžu pribúdať generované HTML reporty (globálny príkaz `/tfs-tasky`) — nie sú to zdrojáky, nemeniť.
+
+## Železné pravidlá
+
+1. **Každá zmena logiky sa robí v `pwa-task-filter.js` a MUSÍ sa ručne premietnuť do `pwa-task-filter.min.txt`** (minifikácia je manuálna, pozri mapu premenných nižšie). Obe verzie musia byť funkčne identické.
+2. Na konci odpovede vždy pripomeň používateľovi, aby **vymenil URL v záložke** za nový obsah `.min.txt`.
+3. **Nedá sa testovať lokálne** — cieľ je intranetová stránka. Overenie robí používateľ v prehliadači; pri neistote o DOM si vyžiadaj outerHTML alebo screenshot.
+4. Bookmarklet musí ostať vanilla ES5-kompatibilný JS (žiadne moduly, žiadne async/await), celý v jednom IIFE s prefixom `javascript:`.
+
+## Mapa premenných (čitateľná → min)
+
+`NORM→N, IGNORED→IG, findDoc→F, picker→p, tree→t, box→b, nvWrap→nw, nvBox→nv, toExpand→tx, filterItem→fi, apply→ap, status→st, rowOf→ro, rowIcon→ri, idle→idl, timer→tm, PKEY→PK, store→ls, loadPresets→lp, savePresets→sv, pathOf→po, checkboxByPath→cbm, psWrap→pw, psSel→se, mkBtn→mkb, btnUse→bU, btnSave→bS, btnDel→bD, psInfo→inf, refreshPresets→rs, DW/DH (rozmery) rovnaké`
+
+## DOM kontrakt PWA dialógu (overené z reálneho HTML)
+
+- Dialóg beží v **iframe** SharePoint modálu — bookmarklet hľadá dokument s `#idDivTreePicker` rekurzívne cez `window.top.frames`.
+- Strom: `#idDivTreePicker .tree-results`; uzol = `div[role=treeitem][aria-expanded]`, jeho prvý child div = riadok (expand ikona `.ms-commentexpand-icon` + `input[type=checkbox]` + `span.entry-text`), deti v `.outer-children-container > .inner-children-container`.
+- Pozor: kontajnery detí majú **tiež** `role=treeitem` — uzly rozlišuj cez `classList`, nie cez role.
+- Deti sa **lazy-loadujú AJAXom** až po kliknutí na expand ikonu; checkboxy projektov sú `disabled`, zaškrtávateľné sú len úlohy (listy).
+- Programové zaškrtnutie robiť cez `.click()`, nie `.checked = true` — inak to widget nezaregistruje.
+- SP modál má inline px rozmery na rodičoch iframe (zväčšovanie okna upravuje len hodnoty končiace na `px`).
+
+## Doménové konvencie
+
+- Porovnávanie textov vždy cez `NORM` (lowercase + odstránená diakritika cez NFD).
+- Top-level projekty začínajúce na `xo`/`SWD` sa ignorujú: regex `IGNORED = /^(xo|swd)/` (jediné miesto konfigurácie).
+- Uzly obsahujúce „nevykazovat" sú default skryté; checkbox „zahrnúť aj položky Nevykazovat" ich zobrazí.
+- Množiny checkboxov: `localStorage` na origine `http://pwa`, kľúč `tsFilterPresets`, formát `{ "názov": ["projekt|cesta|úloha", …] }` — cesty z normalizovaných názvov spojené `|`.
