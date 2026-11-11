@@ -39,3 +39,8 @@ $html = @"
 $out = Join-Path $dir 'pwa-task-filter.install.html'
 Set-Content -Path $out -Value $html -Encoding UTF8
 Write-Host "Vygenerované: $out ($((Get-Item $out).Length) B)"
+
+# kópia ako index.html v koreni repa — GitHub Pages ju servíruje na https://ditec-turcan.github.io/pwa-filter/
+$idx = Join-Path (Split-Path -Parent $dir) 'index.html'
+Set-Content -Path $idx -Value $html -Encoding UTF8
+Write-Host "Vygenerované: $idx"
