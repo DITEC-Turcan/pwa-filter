@@ -135,6 +135,7 @@ javascript: (function () {
             var e = map[pt];
             if (e) { found++; if (!e.cb.checked) e.cb.click(); }
         });
+        updateCount();
         return 'Nastavené ' + found + '/' + want.length + (found < want.length ? ' (zvyšok v strome nie je)' : '');
     };
     var renderModal = function () {
