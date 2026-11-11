@@ -28,8 +28,13 @@ malý strom projektov bez vyhľadávania — s týmto bookmarkletom dostaneš:
 1. V Edge/Chrome si zobraz panel obľúbených položiek (`Ctrl+Shift+B`).
 2. Pravý klik na panel → **Pridať obľúbenú položku** (Add favorite).
 3. Názov: napr. `PWA filter`.
-4. Do poľa **URL** vlož celý obsah súboru [`pwa-filter/pwa-task-filter.min.txt`](pwa-filter/pwa-task-filter.min.txt)
-   (jeden riadok začínajúci `javascript:`).
+4. Do poľa **URL** vlož obsah súboru [`pwa-filter/pwa-task-filter.loader.txt`](pwa-filter/pwa-task-filter.loader.txt)
+   (krátky loader — pri kliknutí si vždy stiahne aktuálnu verziu skriptu z GitHubu,
+   takže sa záložka pri úpravách nemusí meniť).
+
+Alternatíva bez závislosti na GitHube: vložiť priamo celý obsah
+[`pwa-filter/pwa-task-filter.min.txt`](pwa-filter/pwa-task-filter.min.txt) — je ale dlhý
+nad limit políčka URL v niektorých prehliadačoch a po každej zmene ho treba vymeniť.
 
 > Pozor: pri vkladaní priamo do adresného riadku prehliadač prefix `javascript:` odstráni —
 > do dialógu obľúbených položiek sa ale vkladá v poriadku.
@@ -48,7 +53,8 @@ Opakovaný klik na záložku nič nepokazí — len znova zaostrí vyhľadávaci
 | Súbor | Popis |
 |---|---|
 | [`pwa-filter/pwa-task-filter.js`](pwa-filter/pwa-task-filter.js) | Čitateľný zdrojový kód s komentármi — tu sa robia úpravy. |
-| [`pwa-filter/pwa-task-filter.min.txt`](pwa-filter/pwa-task-filter.min.txt) | Minifikovaná jednoriadková verzia pre záložku — musí byť funkčne zhodná so zdrojom. |
+| [`pwa-filter/pwa-task-filter.min.txt`](pwa-filter/pwa-task-filter.min.txt) | Minifikovaná jednoriadková verzia — musí byť funkčne zhodná so zdrojom; loader ju sťahuje z GitHubu. |
+| [`pwa-filter/pwa-task-filter.loader.txt`](pwa-filter/pwa-task-filter.loader.txt) | Krátky loader do záložky — stiahne a spustí aktuálnu min verziu z `main` vetvy. |
 
 ## Konfigurácia
 
@@ -57,4 +63,5 @@ Opakovaný klik na záložku nič nepokazí — len znova zaostrí vyhľadávaci
 - Rozmerové konštanty zväčšenia okna (v kóde): `DW`, `DH`.
 - Kľúč množín v `localStorage`: `tsFilterPresets`.
 
-Po každej zmene kódu treba úpravu premietnuť do `.min.txt` a vymeniť URL v záložke.
+Po každej zmene kódu treba úpravu premietnuť do `.min.txt` a **pushnúť na GitHub** —
+záložka s loaderom si novú verziu stiahne sama (raw.githubusercontent.com cachuje ~5 minút).

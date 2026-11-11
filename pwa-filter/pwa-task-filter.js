@@ -84,12 +84,24 @@ javascript: (function () {
         }
         return parts.join('|');
     };
+    var dispPathOf = function (item) {
+        var parts = [], el = item;
+        while (el && el !== tree) {
+            if (el.getAttribute && el.getAttribute('role') === 'treeitem'
+                && !(el.classList.contains('outer-children-container') || el.classList.contains('inner-children-container'))) {
+                var r = rowOf(el);
+                if (r) parts.unshift((r.textContent || '').trim());
+            }
+            el = el.parentElement;
+        }
+        return parts.join(' → ');
+    };
     var checkboxByPath = function () {
         var map = {};
         tree.querySelectorAll('input[type=checkbox]').forEach(function (cb) {
             if (!cb.disabled) {
                 var it = cb.closest('[role="treeitem"]');
-                if (it) map[pathOf(it)] = cb;
+                if (it) map[pathOf(it)] = { cb: cb, disp: dispPathOf(it) };
             }
         });
         return map;
@@ -108,10 +120,117 @@ javascript: (function () {
         psWrap.appendChild(btn);
         return btn;
     };
-    var btnUse = mkBtn('Použiť'), btnSave = mkBtn('Uložiť'), btnDel = mkBtn('Zmazať');
+    var btnUse = mkBtn('Použiť'), btnSave = mkBtn('Uložiť'), btnDel = mkBtn('Zmazať'), btnShow = mkBtn('Prehľad');
     var psInfo = doc.createElement('span');
     psInfo.style.cssText = 'margin-left:6px;color:#666';
     psWrap.appendChild(psInfo);
+
+    // --- modálny prehľad množín: vľavo zoznam, vpravo obsah vybranej ---
+    var modal = null, modalList = null, modalItems = null, modalInfo = null, modalSel = '';
+    var applyPreset = function (name) {
+        var want = loadPresets()[name] || [];
+        var map = checkboxByPath();
+        var found = 0;
+        want.forEach(function (pt) {
+            var e = map[pt];
+            if (e) { found++; if (!e.cb.checked) e.cb.click(); }
+        });
+        return 'Nastavené ' + found + '/' + want.length + (found < want.length ? ' (zvyšok v strome nie je)' : '');
+    };
+    var renderModal = function () {
+        var ps = loadPresets();
+        var names = Object.keys(ps).sort();
+        modalList.innerHTML = '';
+        if (!names.length) modalList.textContent = '(žiadne množiny)';
+        names.forEach(function (k) {
+            var row = doc.createElement('div');
+            row.textContent = k;
+            row.style.cssText = 'padding:3px 8px;cursor:pointer' + (k === modalSel ? ';background:#cde6f7;font-weight:bold' : '');
+            row.addEventListener('click', function () { modalSel = k; renderModal(); });
+            modalList.appendChild(row);
+        });
+        modalItems.innerHTML = '';
+        if (!modalSel || !ps[modalSel]) { modalItems.textContent = 'Vyber množinu vľavo.'; return; }
+        var map = checkboxByPath();
+        ps[modalSel].forEach(function (pt) {
+            var e = map[pt], line = doc.createElement('div');
+            // hlavný text = názov úlohy, cesta k nej menším sivo (nekončí mimo okna)
+            var parts = e ? e.disp.split(' → ') : pt.split('|');
+            var task = parts.pop();
+            line.style.cssText = 'margin:1px 0';
+            if (e) {
+                line.textContent = (e.cb.checked ? '☑ ' : '☐ ') + task;
+            } else {
+                line.textContent = '✗ ' + task;
+                line.style.color = '#a00';
+                line.title = 'Už nie je v strome';
+            }
+            if (parts.length) {
+                var path = doc.createElement('span');
+                path.style.cssText = 'color:#888;font-size:10px';
+                path.textContent = '  (' + parts.join(' → ') + ')';
+                line.appendChild(path);
+            }
+            modalItems.appendChild(line);
+        });
+    };
+    var openModal = function (name) {
+        if (!modal) {
+            modal = doc.createElement('div');
+            modal.style.cssText = 'position:fixed;left:0;top:0;right:0;bottom:0;z-index:2000;background:rgba(0,0,0,.25)';
+            var panel = doc.createElement('div');
+            panel.style.cssText = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:96%;height:78%;background:#fff;border:1px solid #0072c6;box-shadow:3px 3px 10px rgba(0,0,0,.4);display:flex;flex-direction:column;font:12px Segoe UI,sans-serif;color:#333';
+            var head = doc.createElement('div');
+            head.style.cssText = 'padding:5px 10px;background:#0072c6;color:#fff;font-weight:bold';
+            head.textContent = 'Uložené množiny';
+            var close = doc.createElement('span');
+            close.textContent = '✕';
+            close.style.cssText = 'float:right;cursor:pointer;padding:0 4px';
+            close.addEventListener('click', function () { modal.style.display = 'none'; });
+            head.insertBefore(close, head.firstChild);
+            var body = doc.createElement('div');
+            body.style.cssText = 'flex:1;display:flex;overflow:hidden';
+            modalList = doc.createElement('div');
+            modalList.style.cssText = 'width:34%;border-right:1px solid #ddd;overflow:auto';
+            modalItems = doc.createElement('div');
+            modalItems.style.cssText = 'flex:1;overflow:auto;padding:4px 8px';
+            body.appendChild(modalList);
+            body.appendChild(modalItems);
+            var foot = doc.createElement('div');
+            foot.style.cssText = 'padding:6px 10px;border-top:1px solid #ddd;text-align:right';
+            modalInfo = doc.createElement('span');
+            modalInfo.style.cssText = 'float:left;color:#666';
+            var bApply = doc.createElement('button');
+            bApply.type = 'button';
+            bApply.textContent = 'Použiť';
+            bApply.style.cssText = 'font:12px Segoe UI,sans-serif;padding:2px 10px;cursor:pointer';
+            bApply.addEventListener('click', function () {
+                if (!modalSel) return;
+                modalInfo.textContent = applyPreset(modalSel);
+                psSel.value = modalSel;
+                renderModal();
+            });
+            var bClose = doc.createElement('button');
+            bClose.type = 'button';
+            bClose.textContent = 'Zavrieť';
+            bClose.style.cssText = 'font:12px Segoe UI,sans-serif;padding:2px 10px;cursor:pointer;margin-left:6px';
+            bClose.addEventListener('click', function () { modal.style.display = 'none'; });
+            foot.appendChild(modalInfo);
+            foot.appendChild(bApply);
+            foot.appendChild(bClose);
+            panel.appendChild(head);
+            panel.appendChild(body);
+            panel.appendChild(foot);
+            modal.appendChild(panel);
+            modal.addEventListener('click', function (e) { if (e.target === modal) modal.style.display = 'none'; });
+            doc.body.appendChild(modal);
+        }
+        modalSel = name || modalSel;
+        modalInfo.textContent = '';
+        modal.style.display = '';
+        renderModal();
+    };
+    btnShow.addEventListener('click', function () { openModal(psSel.value); });
     var refreshPresets = function () {
         var ps = loadPresets();
         psSel.innerHTML = '';
@@ -144,18 +263,12 @@ javascript: (function () {
         refreshPresets();
         psSel.value = name;
         psInfo.textContent = 'Uložené (' + sel.length + ').';
+        openModal(name);
     });
     btnUse.addEventListener('click', function () {
         var name = psSel.value;
         if (!name) return;
-        var want = loadPresets()[name] || [];
-        var map = checkboxByPath();
-        var found = 0;
-        want.forEach(function (pt) {
-            var cb = map[pt];
-            if (cb) { found++; if (!cb.checked) cb.click(); }
-        });
-        psInfo.textContent = 'Nastavené ' + found + '/' + want.length + (found < want.length ? ' (zvyšok v strome nie je)' : '');
+        psInfo.textContent = applyPreset(name);
     });
     btnDel.addEventListener('click', function () {
         var name = psSel.value;
