@@ -549,6 +549,18 @@ javascript: (function () {
             if (/px$/.test(el.style.width)) el.style.width = (parseInt(el.style.width) + treeDW) + 'px';
         }
     });
+    // skry nepoužívané polia Line Classification a Comment — uvoľnené miesto dostane strom (fixOverflow)
+    var hideField = function (el2) {
+        while (el2 && el2 !== doc.body && !(el2.classList && el2.classList.contains('ms-core-form-line'))) el2 = el2.parentElement;
+        if (!el2 || el2 === doc.body || el2 === picker) return;
+        var lab = el2.previousElementSibling;
+        if (lab && /:\s*$/.test(lab.textContent || '')) lab.style.display = 'none';
+        el2.style.display = 'none';
+    };
+    doc.querySelectorAll('select, input[type=text]').forEach(function (fld) {
+        if (!uiPanel.contains(fld)) hideField(fld);
+    });
+
     // dorovnaj výšku stromu podľa spodných tlačidiel dialógu: skráti aj natíahne,
     // aby tlačidlá sadli tesne nad spodný okraj (scrollHeight volné miesto nezmeria)
     var fixOverflow = function () {
