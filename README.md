@@ -16,7 +16,9 @@ malý strom projektov bez vyhľadávania — s týmto bookmarkletom dostaneš:
   checkbox *zahrnúť aj položky „Nevykazovat“* ich v prípade potreby zobrazí.
   Vetvy, v ktorých nie je nič na zaškrtnutie, sa nezobrazujú.
 - **Väčšie okno** — modálny dialóg aj strom sa zväčšia, takže vidno viac riadkov
-  aj tlačidlá OK/Cancel.
+  aj tlačidlá OK/Cancel. Zväčšenie sa limituje veľkosťou obrazovky — na menšom monitore
+  sa strom prispôsobí (minimálne ~10 riadkov) tak, aby filtre hore aj tlačidlá dole
+  boli vždy viditeľné.
 - **Množiny úloh** — aktuálne zaškrtnuté úlohy si uložíš pod názvom (tlačidlo *Uložiť*),
   neskôr ich jedným klikom zaškrtneš znova (*Použiť*) alebo množinu zmažeš (*Zmazať*).
   Množín môže byť ľubovoľne veľa; ukladajú sa do `localStorage` prehliadača na origine

@@ -520,6 +520,9 @@ javascript: (function () {
         }
         if (ifr && !ifr.dataset.tsGrown) {
             ifr.dataset.tsGrown = '1';
+            // limit podľa viewportu — na malom monitore rastie menej, prípadne sa dialóg až zmenší
+            DW = Math.min(DW, window.top.innerWidth - ifr.offsetWidth - 40);
+            DH = Math.min(DH, window.top.innerHeight - ifr.offsetHeight - 70);
             ifr.style.height = (ifr.offsetHeight + DH) + 'px';
             ifr.style.width = (ifr.offsetWidth + DW) + 'px';
             // SP modál má inline px rozmery na rodičoch (.ms-dlgContent a spol.) — zväčši a vycentruj
@@ -534,12 +537,14 @@ javascript: (function () {
             }
         }
     } catch (e) { }
-    // zväčši aj kontajnery stromu (inline px), −110/−10 px rezerva na naše prvky a tlačidlá
+    // kontajnery stromu: rezerva −110/−10 px na naše prvky a tlačidlá; strom sa môže aj zmenšiť,
+    // ale len po ~10 riadkov, aby boli filtre hore aj tlačidlá dole vždy viditeľné
+    var treeDH = Math.max(DH - 110, -40), treeDW = Math.max(DW - 10, -120);
     ['.outer-container', '.results-padder', '.general-results'].forEach(function (sel) {
         var el = picker.querySelector(sel);
         if (el) {
-            if (/px$/.test(el.style.height)) el.style.height = (parseInt(el.style.height) + DH - 110) + 'px';
-            if (/px$/.test(el.style.width)) el.style.width = (parseInt(el.style.width) + DW - 10) + 'px';
+            if (/px$/.test(el.style.height)) el.style.height = (parseInt(el.style.height) + treeDH) + 'px';
+            if (/px$/.test(el.style.width)) el.style.width = (parseInt(el.style.width) + treeDW) + 'px';
         }
     });
 
