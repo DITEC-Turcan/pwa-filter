@@ -41,13 +41,19 @@ javascript: (function () {
     box.style.cssText = 'display:block;width:95%;margin:0 0 4px;padding:4px 6px;border:1px solid #0072c6;font:12px Segoe UI,sans-serif;outline:none';
     picker.insertBefore(box, picker.firstChild);
 
-    var nvWrap = doc.createElement('label');
-    nvWrap.style.cssText = 'display:block;margin:0 0 4px;font:11px Segoe UI,sans-serif;color:#444;cursor:pointer';
+    var nvWrap = doc.createElement('div');
+    nvWrap.style.cssText = 'display:block;margin:0 0 4px;font:11px Segoe UI,sans-serif;color:#444';
+    var nvLab = doc.createElement('label');
+    nvLab.style.cssText = 'cursor:pointer';
     var nvBox = doc.createElement('input');
     nvBox.type = 'checkbox';
     nvBox.style.cssText = 'vertical-align:middle;margin:0 4px 0 0';
-    nvWrap.appendChild(nvBox);
-    nvWrap.appendChild(doc.createTextNode('zahrnúť aj položky "Nevykazovat"'));
+    nvLab.appendChild(nvBox);
+    nvLab.appendChild(doc.createTextNode('zahrnúť aj položky "Nevykazovat"'));
+    nvWrap.appendChild(nvLab);
+    var hitInfo = doc.createElement('span');
+    hitInfo.style.cssText = 'margin-left:10px;color:#0072c6';
+    nvWrap.appendChild(hitInfo);
     picker.insertBefore(nvWrap, box.nextSibling);
 
     // --- uložené množiny zaškrtnutých úloh (localStorage origin-u PWA) ---
@@ -154,7 +160,25 @@ javascript: (function () {
     });
 
     // uzol = <div role=treeitem>: prvý div = riadok s textom, .outer-children-container = deti
-    var toExpand = [];
+    var toExpand = [], hits = 0;
+
+    // zvýrazni zhodu v názve; indexy sedia, lebo NORM zachováva počet znakov
+    var highlight = function (row, q) {
+        var sp = row && row.querySelector('.entry-text');
+        if (!sp) return;
+        if (sp.dataset.orig == null) sp.dataset.orig = sp.textContent;
+        var orig = sp.dataset.orig;
+        var idx = q ? NORM(orig).indexOf(q) : -1;
+        if (idx < 0) { if (sp.firstElementChild) sp.textContent = orig; return; }
+        sp.textContent = '';
+        sp.appendChild(doc.createTextNode(orig.slice(0, idx)));
+        var mk = doc.createElement('span');
+        mk.style.cssText = 'background:#ffe08a;border-radius:2px';
+        mk.textContent = orig.slice(idx, idx + q.length);
+        sp.appendChild(mk);
+        sp.appendChild(doc.createTextNode(orig.slice(idx + q.length)));
+    };
+
     var filterItem = function (item, q, anc) {
         var row = null, cont = null, c;
         for (c = item.firstElementChild; c; c = c.nextElementSibling) {
@@ -173,6 +197,11 @@ javascript: (function () {
         }
         var vis = !q || anc || selfMatch || childMatch;
         item.style.display = vis ? '' : 'none';
+        highlight(row, selfMatch ? q : '');
+        if (q && vis) {
+            var cb = row && row.querySelector('input[type=checkbox]');
+            if (cb && !cb.disabled) hits++;
+        }
         // kandidát na auto-rozbalenie (lazy load detí) — raz na uzol, nehádame sa s ručným zbalením
         if ((selfMatch || childMatch) && item.getAttribute('aria-expanded') === 'false' && !item.dataset.axp) {
             toExpand.push(item);
@@ -182,8 +211,9 @@ javascript: (function () {
 
     var apply = function () {
         var q = NORM(box.value.trim());
-        toExpand = [];
+        toExpand = []; hits = 0;
         for (var c = tree.firstElementChild; c; c = c.nextElementSibling) filterItem(c, q, false);
+        hitInfo.textContent = q ? 'nájdených úloh: ' + hits : '';
         if (q.length >= 2 && toExpand.length <= 10) {
             toExpand.forEach(function (item) {
                 item.dataset.axp = '1';
@@ -199,8 +229,13 @@ javascript: (function () {
         if (e.key === 'Escape') { box.value = ''; apply(); e.preventDefault(); e.stopPropagation(); }
     });
 
-    // lazy-loadnuté deti po rozbalení projektu prefiltruj tiež
-    new doc.defaultView.MutationObserver(apply).observe(tree, { childList: true, subtree: true });
+    // lazy-loadnuté deti po rozbalení projektu prefiltruj tiež; mutácie z vlastného zvýrazňovania (.entry-text) ignoruj, inak vznikne slučka
+    new doc.defaultView.MutationObserver(function (ms) {
+        for (var i = 0; i < ms.length; i++) {
+            var el = ms[i].target.nodeType === 1 ? ms[i].target : ms[i].target.parentElement;
+            if (!el || !el.closest('.entry-text')) { apply(); return; }
+        }
+    }).observe(tree, { childList: true, subtree: true });
 
     // --- auto-rozbalenie celého stromu, aby filter videl aj nenačítané úlohy ---
     var status = doc.createElement('span');

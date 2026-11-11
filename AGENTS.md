@@ -19,7 +19,7 @@ Do koreňa môžu pribúdať generované HTML reporty (globálny príkaz `/tfs-t
 
 ## Mapa premenných (čitateľná → min)
 
-`NORM→N, IGNORED→IG, findDoc→F, picker→p, tree→t, box→b, nvWrap→nw, nvBox→nv, toExpand→tx, filterItem→fi, apply→ap, status→st, rowOf→ro, rowIcon→ri, idle→idl, timer→tm, PKEY→PK, store→ls, loadPresets→lp, savePresets→sv, pathOf→po, checkboxByPath→cbm, psWrap→pw, psSel→se, mkBtn→mkb, btnUse→bU, btnSave→bS, btnDel→bD, psInfo→inf, refreshPresets→rs, DW/DH (rozmery) rovnaké`
+`NORM→N, IGNORED→IG, findDoc→F, picker→p, tree→t, box→b, nvWrap→nw, nvLab→nl, nvBox→nv, hitInfo→hi, hits→ht, highlight→hl, toExpand→tx, filterItem→fi, apply→ap, status→st, rowOf→ro, rowIcon→ri, idle→idl, timer→tm, PKEY→PK, store→ls, loadPresets→lp, savePresets→sv, pathOf→po, checkboxByPath→cbm, psWrap→pw, psSel→se, mkBtn→mkb, btnUse→bU, btnSave→bS, btnDel→bD, psInfo→inf, refreshPresets→rs, DW/DH (rozmery) rovnaké`
 
 ## DOM kontrakt PWA dialógu (overené z reálneho HTML)
 
