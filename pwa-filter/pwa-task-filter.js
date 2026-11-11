@@ -522,17 +522,18 @@ javascript: (function () {
             ifr.dataset.tsGrown = '1';
             // limit podľa viewportu — na malom monitore rastie menej, prípadne sa dialóg až zmenší
             DW = Math.min(DW, window.top.innerWidth - ifr.offsetWidth - 40);
-            DH = Math.min(DH, window.top.innerHeight - ifr.offsetHeight - 70);
+            DH = Math.min(DH, window.top.innerHeight - ifr.offsetHeight - 80);
             ifr.style.height = (ifr.offsetHeight + DH) + 'px';
             ifr.style.width = (ifr.offsetWidth + DW) + 'px';
-            // SP modál má inline px rozmery na rodičoch (.ms-dlgContent a spol.) — zväčši a vycentruj
+            // SP modál má inline px rozmery na rodičoch (.ms-dlgContent a spol.) — zväčši
+            // a nanovo vycentruj do viewportu (rešpektuje scroll aj zmenšenie)
             var el = ifr.parentNode;
             while (el && el.style) {
                 var s = el.style;
                 if (/px$/.test(s.height)) s.height = (parseInt(s.height) + DH) + 'px';
                 if (/px$/.test(s.width)) s.width = (parseInt(s.width) + DW) + 'px';
-                if (/px$/.test(s.top)) s.top = Math.max(10, parseInt(s.top) - DH / 2) + 'px';
-                if (/px$/.test(s.left)) s.left = Math.max(10, parseInt(s.left) - DW / 2) + 'px';
+                if (/px$/.test(s.top)) s.top = (window.top.pageYOffset + Math.max(10, (window.top.innerHeight - el.offsetHeight) / 2)) + 'px';
+                if (/px$/.test(s.left)) s.left = (window.top.pageXOffset + Math.max(10, (window.top.innerWidth - el.offsetWidth) / 2)) + 'px';
                 el = el.parentNode;
             }
         }
