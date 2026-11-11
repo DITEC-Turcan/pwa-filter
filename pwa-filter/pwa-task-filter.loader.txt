@@ -1,1 +1,0 @@
-javascript:void fetch('https://raw.githubusercontent.com/DITEC-Turcan/pwa-filter/main/pwa-filter/pwa-task-filter.min.txt?'+Date.now()).then(function(r){if(!r.ok)throw r.status;return r.text()}).then(function(t){eval(t.replace('javascript:',''))}).catch(function(e){alert('Nepodarilo sa stiahnuť PWA filter: '+e)})

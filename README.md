@@ -25,19 +25,12 @@ malý strom projektov bez vyhľadávania — s týmto bookmarkletom dostaneš:
 
 ## Inštalácia
 
-1. V Edge/Chrome si zobraz panel obľúbených položiek (`Ctrl+Shift+B`).
-2. Pravý klik na panel → **Pridať obľúbenú položku** (Add favorite).
-3. Názov: napr. `PWA filter`.
-4. Do poľa **URL** vlož obsah súboru [`pwa-filter/pwa-task-filter.loader.txt`](pwa-filter/pwa-task-filter.loader.txt)
-   (krátky loader — pri kliknutí si vždy stiahne aktuálnu verziu skriptu z GitHubu,
-   takže sa záložka pri úpravách nemusí meniť).
+1. Otvor v prehliadači [`pwa-filter/pwa-task-filter.install.html`](pwa-filter/pwa-task-filter.install.html) (dvojklik na súbor).
+2. Zobraz si panel obľúbených (`Ctrl+Shift+B`).
+3. **Potiahni modré tlačidlo „PWA filter“ myšou na panel obľúbených.**
 
-Alternatíva bez závislosti na GitHube: vložiť priamo celý obsah
-[`pwa-filter/pwa-task-filter.min.txt`](pwa-filter/pwa-task-filter.min.txt) — je ale dlhý
-nad limit políčka URL v niektorých prehliadačoch a po každej zmene ho treba vymeniť.
-
-> Pozor: pri vkladaní priamo do adresného riadku prehliadač prefix `javascript:` odstráni —
-> do dialógu obľúbených položiek sa ale vkladá v poriadku.
+Celý skript je vložený priamo v záložke — nič sa nesťahuje zo siete.
+**Aktualizácia na novšiu verziu:** starú záložku zmazať a potiahnuť nanovo.
 
 ## Použitie
 
@@ -53,8 +46,9 @@ Opakovaný klik na záložku nič nepokazí — len znova zaostrí vyhľadávaci
 | Súbor | Popis |
 |---|---|
 | [`pwa-filter/pwa-task-filter.js`](pwa-filter/pwa-task-filter.js) | Čitateľný zdrojový kód s komentármi — tu sa robia úpravy. |
-| [`pwa-filter/pwa-task-filter.min.txt`](pwa-filter/pwa-task-filter.min.txt) | Minifikovaná jednoriadková verzia — musí byť funkčne zhodná so zdrojom; loader ju sťahuje z GitHubu. |
-| [`pwa-filter/pwa-task-filter.loader.txt`](pwa-filter/pwa-task-filter.loader.txt) | Krátky loader do záložky — stiahne a spustí aktuálnu min verziu z `main` vetvy. |
+| [`pwa-filter/pwa-task-filter.min.txt`](pwa-filter/pwa-task-filter.min.txt) | Minifikovaná jednoriadková verzia — musí byť funkčne zhodná so zdrojom. |
+| [`pwa-filter/make-install-html.ps1`](pwa-filter/make-install-html.ps1) | Vygeneruje inštalačnú stránku z min verzie. |
+| [`pwa-filter/pwa-task-filter.install.html`](pwa-filter/pwa-task-filter.install.html) | Generovaná inštalačná stránka — záložka sa inštaluje potiahnutím odkazu. |
 
 ## Konfigurácia
 
@@ -63,5 +57,5 @@ Opakovaný klik na záložku nič nepokazí — len znova zaostrí vyhľadávaci
 - Rozmerové konštanty zväčšenia okna (v kóde): `DW`, `DH`.
 - Kľúč množín v `localStorage`: `tsFilterPresets`.
 
-Po každej zmene kódu treba úpravu premietnuť do `.min.txt` a **pushnúť na GitHub** —
-záložka s loaderom si novú verziu stiahne sama (raw.githubusercontent.com cachuje ~5 minút).
+Po každej zmene kódu treba úpravu premietnuť do `.min.txt`, spustiť `make-install-html.ps1`
+a záložku preinstalovať (starú zmazať, novú pretiahnuť z inštalačnej stránky).

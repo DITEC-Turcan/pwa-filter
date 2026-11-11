@@ -377,6 +377,7 @@ javascript: (function () {
                 if (icon) icon.click();
             });
         }
+        updateCount();
     };
 
     box.addEventListener('input', apply);
@@ -392,6 +393,17 @@ javascript: (function () {
             if (!el || !el.closest('.entry-text')) { apply(); return; }
         }
     }).observe(tree, { childList: true, subtree: true });
+
+    // --- počítadlo zaškrtnutých úloh (v riadku pri "Nevykazovat", aby nezaberalo ďalší riadok) ---
+    var countBar = doc.createElement('span');
+    countBar.style.cssText = 'margin-left:10px;color:#444;font-weight:bold';
+    nvWrap.appendChild(countBar);
+    var updateCount = function () {
+        countBar.textContent = 'Zaškrtnutých úloh: ' + tree.querySelectorAll('input[type=checkbox]:checked:not([disabled])').length;
+    };
+    // setTimeout — stav checkboxu je finálny až po dobehnutí click eventu
+    tree.addEventListener('click', function () { doc.defaultView.setTimeout(updateCount, 0); });
+    updateCount();
 
     // --- auto-rozbalenie celého stromu, aby filter videl aj nenačítané úlohy ---
     var status = doc.createElement('span');
@@ -467,11 +479,11 @@ javascript: (function () {
             }
         }
     } catch (e) { }
-    // zväčši aj kontajnery stromu (inline px), −90/−10 px rezerva na naše prvky a tlačidlá
+    // zväčši aj kontajnery stromu (inline px), −110/−10 px rezerva na naše prvky a tlačidlá
     ['.outer-container', '.results-padder', '.general-results'].forEach(function (sel) {
         var el = picker.querySelector(sel);
         if (el) {
-            if (/px$/.test(el.style.height)) el.style.height = (parseInt(el.style.height) + DH - 90) + 'px';
+            if (/px$/.test(el.style.height)) el.style.height = (parseInt(el.style.height) + DH - 110) + 'px';
             if (/px$/.test(el.style.width)) el.style.width = (parseInt(el.style.width) + DW - 10) + 'px';
         }
     });
