@@ -14,7 +14,7 @@ Do koreňa môžu pribúdať generované HTML reporty (globálny príkaz `/tfs-t
 ## Železné pravidlá
 
 1. **Každá zmena logiky sa robí v `pwa-task-filter.js` a MUSÍ sa ručne premietnuť do `pwa-task-filter.min.txt`** (minifikácia je manuálna, pozri mapu premenných nižšie). Obe verzie musia byť funkčne identické.
-2. Po zmene min verzie spusti `pwa-filter/make-install-html.ps1` a na konci odpovede pripomeň používateľovi, že má starú záložku zmazať a **znova pretiahnuť z pwa-task-filter.install.html** (a môže commitnúť/pushnúť).
+2. Po zmene min verzie spusti `pwa-filter/make-install-html.ps1` — **vždy cez `pwsh`** (powershell.exe 5.1 číta UTF-8 bez BOM ako ANSI a rozbije diakritiku) — a na konci odpovede pripomeň používateľovi, že má starú záložku zmazať a **znova pretiahnuť z pwa-task-filter.install.html** (a môže commitnúť/pushnúť).
 3. **Pri každej zmene správania aktualizuj README.md** — návod (funkcie, inštalácia, použitie) musí vždy sedieť s realitou. README je zároveň dokumentácia pre kolegov na GitHube.
 4. **Nedá sa testovať lokálne** — cieľ je intranetová stránka. Overenie robí používateľ v prehliadači; pri neistote o DOM si vyžiadaj outerHTML alebo screenshot.
 5. Bookmarklet musí ostať vanilla ES5-kompatibilný JS (žiadne moduly, žiadne async/await), celý v jednom IIFE s prefixom `javascript:`.
