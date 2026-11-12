@@ -10,8 +10,8 @@
 // (PWA doťahuje úlohy lazy až pri rozbalení — bez toho by filter nenačítané úlohy nevidel).
 // Píš — strom sa filtruje (bez ohľadu na diakritiku a veľkosť písmen); keď match-ne názov projektu,
 // zobrazia sa všetky jeho úlohy. Esc vymaže filter.
-// Ignorované prefixy projektov (skryté, nerozbaľujú sa) si používateľ definuje v poli "ignorovať prefixy"
-// (čiarkou oddelené, default xo,swd; uložené v localStorage pod kľúčom tsFilterIgnored).
+// Ignorované prefixy (skryté, nerozbaľujú sa — platí na všetkých úrovniach stromu) si používateľ
+// definuje v poli "ignorovať prefixy" (čiarkou oddelené, default xo,swd; localStorage kľúč tsFilterIgnored).
 // Uzly obsahujúce "Nevykazovat" sú defaultne skryté; checkbox vedľa vyhľadávania ich zahrnie.
 // Množiny: aktuálne zaškrtnuté úlohy sa dajú uložiť pod názvom (localStorage PWA), neskôr vyvolať
 // (zaškrtne týždne existujúce úlohy klikom, takže ich widget zaregistruje) alebo zmazať.
@@ -390,7 +390,7 @@ javascript: (function () {
             else if (!row) row = c;
         }
         var label = row ? NORM(row.textContent || '') : '';
-        if (item.parentElement === tree && isIgnored(label)) { item.style.display = 'none'; return 0; }
+        if (isIgnored(label)) { item.style.display = 'none'; return 0; }
         if (!nvBox.checked && label.indexOf('nevykazovat') > -1) { item.style.display = 'none'; return 0; }
         var selfMatch = !!q && label.indexOf(q) > -1;
         var cb = row && row.querySelector('input[type=checkbox]');
@@ -489,11 +489,9 @@ javascript: (function () {
             for (var i = 0; i < nodes.length; i++) {
                 var it = nodes[i];
                 if (it.dataset.xall) continue;
-                if (it.parentElement === tree) {
-                    var r = rowOf(it);
-                    // ignorované bez príznaku — po zmene zoznamu ich ďalší beh pumpu rozbalí
-                    if (r && isIgnored(NORM(r.textContent || ''))) continue;
-                }
+                var r = rowOf(it);
+                // ignorované bez príznaku — po zmene zoznamu ich ďalší beh pumpu rozbalí
+                if (r && isIgnored(NORM(r.textContent || ''))) continue;
                 it.dataset.xall = '1';
                 var ic = rowIcon(it);
                 if (ic) { ic.click(); n++; }

@@ -39,7 +39,7 @@ Pozn.: `filterItem`/`fi` vracia bitmask — 1 = zhoda s filtrom, 2 = má čo za�
 ## Doménové konvencie
 
 - Porovnávanie textov vždy cez `NORM` (lowercase + odstránená diakritika cez NFD).
-- Top-level projekty sa ignorujú podľa prefixov konfigurovateľných v UI (pole "ignorovať prefixy", čiarkou oddelené, default `xo,swd`); uložené v `localStorage` kľúč `tsFilterIgnored`, porovnáva sa začiatok normalizovaného názvu. Ignorované sa ani nerozbaľujú — po zmene zoznamu sa musí znova spustiť `startPump()`, aby sa predtým ignorované donačítali.
+- Projekty/uzly (na ľubovoľnej úrovni stromu) sa ignorujú podľa prefixov konfigurovateľných v UI (pole "ignorovať prefixy", čiarkou oddelené, default `xo,swd`); uložené v `localStorage` kľúč `tsFilterIgnored`, porovnáva sa začiatok normalizovaného názvu. Listov (úloh) sa to prakticky netýka — ich názvy začínajú `[id] `. Ignorované sa ani nerozbaľujú — po zmene zoznamu sa musí znova spustiť `startPump()`, aby sa predtým ignorované donačítali.
 - Uzly obsahujúce „nevykazovat" sú default skryté; checkbox „zahrnúť aj položky Nevykazovat" ich zobrazí.
 - Množiny checkboxov: `localStorage` na origine `http://pwa`, kľúč `tsFilterPresets`, formát `{ "názov": ["projekt|cesta|úloha", …] }` — cesty z normalizovaných názvov spojené `|`. Záznamy uložené z timesheetu majú formát `projekt|*|úloha` — párujú sa voľne cez prvý segment + posledný bez `[id]` prefixu (loose kľúče pridáva `checkboxByPath`).
 - Klik na bookmarklet bez dialógu: ak existuje timesheet grid (tabuľka `[id$="_leftpane_mainTable"]`, stĺpce podľa `title` hlavičiek `Project Name`/`Task Name`, texty v `span.jsgrid-control-text`), ponúkne uloženie úloh ako množiny; súčtový riadok má prázdnu Task bunku a vypadne.

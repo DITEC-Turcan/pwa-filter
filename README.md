@@ -10,7 +10,8 @@ malý strom projektov bez vyhľadávania — s týmto bookmarkletom dostaneš:
 - **Auto-načítanie celého stromu** — PWA doťahuje úlohy zo servera až pri rozbalení uzla,
   takže by ich vyhľadávanie inak nevidelo. Bookmarklet po spustení celý strom sám rozbalí
   (trvá to ~1–2 s, stav ukazuje hláška „Načítavam celý strom úloh…").
-- **Ignorovanie balastu** — projekty začínajúce na zadané prefixy sa skryjú a nenačítavajú.
+- **Ignorovanie balastu** — uzly začínajúce na zadané prefixy sa skryjú a nenačítavajú
+  (na ľubovoľnej úrovni stromu, nielen medzi top-level projektmi).
   Prefixy si nastavíš priamo v dialógu (pole *ignorovať prefixy*, čiarkou oddelené,
   default `xo,swd`); nastavenie sa pamätá. Uzly obsahujúce „Nevykazovat“ sú tiež skryté;
   checkbox *zahrnúť aj položky „Nevykazovat“* ich v prípade potreby zobrazí.
